@@ -17,10 +17,16 @@ Follow these steps to set up the development environment:
 
 2.  **Create and activate a virtual environment:**
 
-    * *Windows:*
-        ```bash
+    * *Windows:*  
+    Powershell
+        ```powershell
         python -m venv "venv"
         ./venv/Scripts/activate
+        ```
+        Bash
+        ```bash
+        python -m venv "venv"
+        venv\Scripts\activate
         ```
 
     * *macOS / Linux:*
