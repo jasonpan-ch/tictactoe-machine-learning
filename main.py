@@ -26,16 +26,21 @@ class TicTacToe:
         return False
     def step(self, action):
         if action not in self.get_legal_moves():
-            raise ValueError("Invalid move")
+            raise ValueError("Invalid move") # Could add a penalty here
         self.board[action] = self.current_player
         winner = self.win()
         is_draw = self.draw()
-        self.current_player = 3 - self.current_player  # Switch player (1 -> 2, 2 -> 1)
-        if winner != 0:
-            self.reset()
-            return winner
+        reward = 0
+        done = False
+        if winner != 0: # Rewards depending on who wins
+            reward = 1
+            done = True
         elif is_draw == True:
+            reward = 0
+            done = True
+        next_board = self.board.copy()
+        if done == True or is_draw == True: # Checks if the game is done
             self.reset()
-            return 3
         else:
-            return 0
+            self.current_player = 3 - self.current_player
+        return next_board, reward, done
