@@ -2,7 +2,7 @@ import torch
 from agent import Agent
 from environment import TicTacToe
 
-def print_board(board):
+def print_board(board): # Helper function to print the board in a user-friendly format
     symbols = {0: " ", 1: "O", 2: "X"}
     b = [symbols[cell] for cell in board]
     
@@ -29,7 +29,7 @@ def main():
 
     while not done:
         if env.current_player == 1:
-            # --- AI'S TURN (Player 1) ---
+            # AI
             legal_moves = env.get_legal_moves()
             action = agent.select_action(state, legal_moves)
             state, reward, done = env.step(action)
