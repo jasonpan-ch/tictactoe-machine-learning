@@ -6,7 +6,7 @@ class TicTacToe:
 
     def reset(self):
         self.board = np.zeros(9, dtype=int)
-        self.current_player = 1
+        self.current_player = np.random.choice([1, 2])
         return self.board.copy()
 
     def get_legal_moves(self):
@@ -27,10 +27,9 @@ class TicTacToe:
         if self.board[action] != 0:
             return self.board.copy(), -1, True
         self.board[action] = self.current_player
-        winner = self.win()
         reward = 0
         done = False
-        if winner != 0: # Rewards depending on who wins
+        if self.win() != 0: # Rewards depending on who wins
             reward = 1
             done = True
         elif len(self.get_legal_moves()) == 0: # Checks for a draw
