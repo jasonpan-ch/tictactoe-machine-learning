@@ -25,7 +25,7 @@ for e in range(episode):
                 agent.store_experience(last_state[current_p], last_action[current_p], 1, next_state, True)
                 other_p = 3 - current_p
                 if last_state[other_p] is not None:
-                    agent.store_experience(last_state[other_p], last_action[other_p], -2, next_state, True)
+                    agent.store_experience(last_state[other_p], last_action[other_p], -1, next_state, True)
             else:
                 agent.store_experience(last_state[1], last_action[1], 0.5, next_state, True)
                 agent.store_experience(last_state[2], last_action[2], 0.5, next_state, True)
