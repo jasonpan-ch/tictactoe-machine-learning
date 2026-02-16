@@ -5,13 +5,14 @@ from environment import TicTacToe
 
 env = TicTacToe()
 agent = Agent()
-episode = 20000
+episode = 10000
 
 for e in range(episode):
     state = env.reset()
     done = False
     last_state = {1: None, 2: None}
     last_action = {1: None, 2: None}
+    last_reward = {1: 0, 2: 0}
     while not done:
         current_p = env.current_player
         legal_moves = env.get_legal_moves()
@@ -19,6 +20,7 @@ for e in range(episode):
         last_state[current_p] = state
         last_action[current_p] = action
         next_state, reward, done = env.step(action)
+        last_reward[current_p] = reward
         
         if done:
             if reward == 1:
@@ -32,7 +34,7 @@ for e in range(episode):
         else:
             other_p = 3 - current_p
             if last_state[other_p] is not None:
-                agent.store_experience(last_state[other_p], last_action[other_p], 0, next_state, False)
+                agent.store_experience(last_state[other_p], last_action[other_p], last_reward[other_p], next_state, False)
         agent.train()
         state = next_state
     if (e + 1) % 100 == 0: # Print progress every 100 episodes

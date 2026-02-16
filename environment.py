@@ -2,6 +2,11 @@ import numpy as np
 
 class TicTacToe:
     def __init__ (self):
+        self.winning_combinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
+            [0, 4, 8], [2, 4, 6]              # diagonals
+        ]
         self.reset()
 
     def reset(self):
@@ -13,12 +18,7 @@ class TicTacToe:
         return np.where(self.board == 0)[0].tolist()
 
     def win(self):
-        winning_combinations = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
-            [0, 4, 8], [2, 4, 6]              # diagonals
-        ]
-        for combo in winning_combinations:
+        for combo in self.winning_combinations:
             if self.board[combo[0]] == self.board[combo[1]] == self.board[combo[2]] != 0:
                 return self.board[combo[0]]
         return 0
@@ -26,14 +26,24 @@ class TicTacToe:
     def step(self, action):
         if self.board[action] != 0:
             return self.board.copy(), -1, True
-        self.board[action] = self.current_player
+        
+        # Check if the move blocks a win
         reward = 0
+        opponent = 3 - self.current_player
+        for combo in self.winning_combinations:
+            if action in combo:
+                # Check if the other two cells in the combo are occupied by the opponent
+                others = [cell for cell in combo if cell != action]
+                if self.board[others[0]] == opponent and self.board[others[1]] == opponent:
+                    reward = 0.5
+                    break
+
+        self.board[action] = self.current_player
         done = False
         if self.win() != 0: # Rewards depending on who wins
             reward = 1
             done = True
         elif len(self.get_legal_moves()) == 0: # Checks for a draw
-            reward = 0
             done = True
         else:
             self.current_player = 3 - self.current_player
