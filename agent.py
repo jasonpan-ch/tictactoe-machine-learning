@@ -1,6 +1,7 @@
 import torch
 import torch.optim as optim
 import torch.nn as nn
+import numpy as np
 import random
 
 from neural_network import DQN
@@ -13,9 +14,9 @@ class Agent:
         self.criterion = nn.MSELoss()
         self.gamma = gamma
         self.epsilon = epsilon
-        self.epsilon_decay = 0.99995
+        self.epsilon_decay = 0.9997
         self.epsilon_min = 0.01
-        self.memory = deque(maxlen = 2000)
+        self.memory = deque(maxlen = 10000)
         self.batch_size = 32
 
     def select_action(self, state, legal_moves):
@@ -36,18 +37,23 @@ class Agent:
         if len(self.memory) < self.batch_size:
             return
         batch = random.sample(self.memory, self.batch_size)
-        for state, action, reward, next_state, done in batch:
-            state_tensor = torch.FloatTensor(state).unsqueeze(0)
-            next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0)
-            current_q = self.model(state_tensor)[0][action]
-            if done:
-                target_q = torch.tensor(float(reward))
-            else:
-                next_q_values = self.model(next_state_tensor)
-                target_q = reward + self.gamma * torch.max(next_q_values)
-            loss = self.criterion(current_q, target_q)
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+        
+        states, actions, rewards, next_states, dones = zip(*batch)
+
+        states = torch.FloatTensor(np.array(states))
+        actions = torch.LongTensor(actions).unsqueeze(1)
+        rewards = torch.FloatTensor(rewards).unsqueeze(1)
+        next_states = torch.FloatTensor(np.array(next_states))
+        dones = torch.FloatTensor(dones).unsqueeze(1)
+
+        current_q_values = self.model(states).gather(1, actions)
+        next_q_values = self.model(next_states).max(1)[0].unsqueeze(1)
+        target_q_values = rewards + (self.gamma * next_q_values * (1 - dones))
+
+        loss = self.criterion(current_q_values, target_q_values)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay

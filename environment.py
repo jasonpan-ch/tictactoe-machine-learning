@@ -27,16 +27,7 @@ class TicTacToe:
         if self.board[action] != 0:
             return self.board.copy(), -1, True
         
-        # Check if the move blocks a win
         reward = 0
-        opponent = 3 - self.current_player
-        for combo in self.winning_combinations:
-            if action in combo:
-                # Check if the other two cells in the combo are occupied by the opponent
-                others = [cell for cell in combo if cell != action]
-                if self.board[others[0]] == opponent and self.board[others[1]] == opponent:
-                    reward = 0.5
-                    break
 
         self.board[action] = self.current_player
         done = False
@@ -46,5 +37,12 @@ class TicTacToe:
         elif len(self.get_legal_moves()) == 0: # Checks for a draw
             done = True
         else:
+            # Check if the move leaves the opponent with a winning move
+            opponent = 3 - self.current_player
+            for combo in self.winning_combinations:
+                line = [self.board[i] for i in combo]
+                if line.count(opponent) == 2 and line.count(0) == 1:
+                    reward = -0.5
+                    break
             self.current_player = 3 - self.current_player
         return self.board.copy(), reward, done

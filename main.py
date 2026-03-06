@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from agent import Agent
 from environment import TicTacToe
 
@@ -31,7 +32,13 @@ def main():
         if env.current_player == 1:
             # AI
             legal_moves = env.get_legal_moves()
-            action = agent.select_action(state, legal_moves)
+            
+            # Transform state for AI: 1=Self, -1=Opponent
+            ai_view = np.zeros_like(state)
+            ai_view[state == 1] = 1
+            ai_view[state == 2] = -1
+            
+            action = agent.select_action(ai_view, legal_moves)
             state, reward, done = env.step(action)
 
             if done:
